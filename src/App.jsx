@@ -82,12 +82,6 @@ export default function App() {
                                 </div>
                             </div>
                         </div>
-                        <div className="hidden sm:block text-right">
-                            <p className="text-xs font-semibold text-indigo-300 uppercase tracking-wider">
-                                Finance & Trade Center (NEPSE)
-                            </p>
-                            <p className="text-xs text-white/40">Singha Durbar Plaza</p>
-                        </div>
                     </div>
                 </div>
             </header>

@@ -1,4 +1,4 @@
-import { memo, useMemo, useState, useCallback, useRef } from 'react'
+import { memo, useMemo, useState, useCallback, useRef, useEffect } from 'react'
 
 // --- Isometric projection helpers ---
 const ISO_ANGLE = Math.PI / 6 // 30 degrees
@@ -70,12 +70,21 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
     const panOrigin = useRef({ x: 0, y: 0 })
     const containerRef = useRef(null)
 
-    const handleWheel = useCallback((e) => {
-        e.preventDefault()
-        setZoom(prev => {
-            const delta = e.deltaY > 0 ? -0.1 : 0.1
-            return Math.min(Math.max(prev + delta, 0.3), 4)
-        })
+    // Non-passive wheel listener to prevent page scroll
+    useEffect(() => {
+        const container = containerRef.current
+        if (!container) return
+
+        const onWheel = (e) => {
+            e.preventDefault()
+            setZoom(prev => {
+                const delta = e.deltaY > 0 ? -0.1 : 0.1
+                return Math.min(Math.max(prev + delta, 0.3), 4)
+            })
+        }
+
+        container.addEventListener('wheel', onWheel, { passive: false })
+        return () => container.removeEventListener('wheel', onWheel)
     }, [])
 
     const handleMouseDown = useCallback((e) => {
@@ -215,8 +224,8 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
                 style={{
                     background: 'linear-gradient(180deg, rgba(15,23,42,0.5), rgba(30,41,59,0.5))',
                     cursor: isPanning ? 'grabbing' : 'grab',
+                    touchAction: 'none', // Prevents touch-scrolling on mobile while panning
                 }}
-                onWheel={handleWheel}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
