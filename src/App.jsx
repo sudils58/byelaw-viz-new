@@ -67,9 +67,28 @@ export default function App() {
                     <div className="flex items-center justify-between">
                         <div>
                             <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                                    <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                        <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                <div className="w-12 h-12 flex items-center justify-center drop-shadow-[0_0_12px_rgba(56,189,248,0.4)]">
+                                    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                                        <g stroke="rgba(255,255,255,0.9)" strokeWidth="3" strokeLinejoin="round">
+                                            {/* Back Center Building */}
+                                            <polygon points="50,15 75,25 50,35 25,25" fill="#2dd4bf" />
+                                            <polygon points="25,25 50,35 50,70 25,60" fill="#14b8a6" />
+                                            <polygon points="50,35 75,25 75,60 50,70" fill="#0d9488" />
+
+                                            {/* Front Left Building */}
+                                            <polygon points="25,50 45,60 25,70 5,60" fill="#2dd4bf" />
+                                            <polygon points="5,60 25,70 25,90 5,80" fill="#14b8a6" />
+                                            <polygon points="25,70 45,60 45,80 25,90" fill="#0d9488" />
+
+                                            {/* Front Right Building */}
+                                            <polygon points="75,50 95,60 75,70 55,60" fill="#2dd4bf" />
+                                            <polygon points="55,60 75,70 75,90 55,80" fill="#14b8a6" />
+                                            <polygon points="75,70 95,60 95,80 75,90" fill="#0d9488" />
+                                        </g>
+
+                                        {/* Checkmark */}
+                                        <path d="M 35,55 L 55,75 L 85,30" stroke="#38bdf8" strokeWidth="8" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M 35,55 L 55,75 L 85,30" stroke="#bae6fd" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
                                     </svg>
                                 </div>
                                 <div>
@@ -92,8 +111,8 @@ export default function App() {
                 <div className="mb-8 glass-banner rounded-2xl p-6 text-white">
                     <div className="flex flex-wrap items-center justify-between gap-4">
                         <div>
-                            <h2 className="text-lg font-bold mb-1">Institutional Zone — Parameters</h2>
-                            <p className="text-indigo-200/70 text-sm">Applicable for plots greater than 8 Anna · Editable below</p>
+                            <h2 className="text-lg font-bold mb-1">Parameters</h2>
+                            <p className="text-indigo-200/70 text-sm">Editable below</p>
                         </div>
                         <div className="flex gap-6">
                             <div className="text-center">
