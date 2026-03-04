@@ -93,11 +93,8 @@ export default function App() {
                                 </div>
                                 <div>
                                     <h1 className="text-xl font-bold text-white tracking-tight">
-                                        KMC Building Compliance Calculator
+                                        Building Bye Laws Compliance Calculator
                                     </h1>
-                                    <p className="text-xs text-white/50 font-medium">
-                                        Kathmandu Metropolitan City Building Standards, 2080
-                                    </p>
                                 </div>
                             </div>
                         </div>
