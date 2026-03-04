@@ -264,3 +264,121 @@ body {
   border: 1px solid rgba(239, 68, 68, 0.3);
   color: #fca5a5;
 }
+
+/* === LIGHT THEME OVERRIDES === */
+body.light-theme {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 30%, #ecfeff 60%, #fef3c7 100%);
+  color: #0f172a;
+}
+
+body.light-theme .glass-bg::before {
+  background: radial-gradient(circle, #38bdf8 0%, transparent 70%);
+}
+
+body.light-theme .glass-bg::after {
+  background: radial-gradient(circle, #fcd34d 0%, transparent 70%);
+}
+
+body.light-theme .glass-card,
+body.light-theme .glass-header,
+body.light-theme .glass-banner {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+  color: #0f172a;
+}
+
+body.light-theme .glass-card-dark {
+  background: rgba(255, 255, 255, 0.4);
+  color: #1e293b;
+  border-top: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+body.light-theme .glass-input {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #0f172a;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+body.light-theme .glass-input:focus {
+  border-color: rgba(99, 102, 241, 0.6);
+  box-shadow:
+    0 0 0 3px rgba(99, 102, 241, 0.1),
+    inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+body.light-theme .glass-input::placeholder {
+  color: #94a3b8;
+}
+
+body.light-theme .glass-btn {
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.1), rgba(79, 70, 229, 0.15));
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  color: #4f46e5;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+}
+
+body.light-theme .glass-btn:hover {
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.15), rgba(79, 70, 229, 0.2));
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.15);
+  color: #4338ca;
+}
+
+body.light-theme .status-pill {
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Force text colors inside light theme */
+body.light-theme .text-white,
+body.light-theme .text-white\/35,
+body.light-theme .text-white\/40,
+body.light-theme .text-white\/45,
+body.light-theme .text-white\/50,
+body.light-theme .text-white\/60,
+body.light-theme .text-white\/70,
+body.light-theme .text-white\/80 {
+  color: #1e293b !important;
+}
+
+body.light-theme .text-white\/30 {
+  color: #475569 !important;
+}
+
+body.light-theme .text-indigo-200\/70 {
+  color: #475569 !important;
+}
+
+body.light-theme .text-slate-300 {
+  color: #475569 !important;
+}
+
+body.light-theme .text-indigo-300 {
+  color: #6366f1 !important;
+}
+
+body.light-theme .text-indigo-200 {
+  color: #4338ca !important;
+}
+
+body.light-theme .border-white\/8,
+body.light-theme .border-white\/10,
+body.light-theme .border-white\/15,
+body.light-theme .border-white\/20,
+body.light-theme .border-white\/30 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+body.light-theme .bg-white\/5,
+body.light-theme .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+body.light-theme .bg-white\/15 {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
