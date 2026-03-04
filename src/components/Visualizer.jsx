@@ -60,7 +60,7 @@ const EXCEEDED_PALETTE = { top: '#f87171', left: '#ef4444', right: '#dc2626' }
 // Road rendering scale: 1 foot in input = this many 3D units
 const ROAD_SCALE = 1.5
 
-function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARCompliant, roads }) {
+function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARCompliant, roads, sitePolygon }) {
 
     // --- Zoom & Pan state ---
     const [zoom, setZoom] = useState(1)
@@ -164,6 +164,33 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
     const ORIGIN_X = SVG_W / 2
     const ORIGIN_Y = SVG_H - 220
 
+    const baseSitePolygon = useMemo(() => {
+        if (sitePolygon && sitePolygon.length >= 3) {
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity
+            sitePolygon.forEach(p => {
+                if (p.x < minX) minX = p.x
+                if (p.x > maxX) maxX = p.x
+                if (p.y < minY) minY = p.y
+                if (p.y > maxY) maxY = p.y
+            })
+            const polyW = maxX - minX
+            const polyD = maxY - minY
+            if (polyW > 0 && polyD > 0) {
+                const polyScale = Math.min(SITE_W / polyW, SITE_D / polyD) * 0.95
+                return sitePolygon.map(p => ({
+                    x: p.x * polyScale + SITE_W / 2,
+                    y: p.y * polyScale + SITE_D / 2
+                }))
+            }
+        }
+        return [
+            { x: 0, y: 0 },
+            { x: SITE_W, y: 0 },
+            { x: SITE_W, y: SITE_D },
+            { x: 0, y: SITE_D }
+        ]
+    }, [sitePolygon])
+
     const blocks = useMemo(() => {
         if (!hasData) return []
 
@@ -172,10 +199,6 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
             .map((f, drawIndex) => {
                 const ratio = Math.min(f.areaNum / siteArea, 1)
                 const factor = Math.sqrt(ratio)
-                const bw = SITE_W * factor
-                const bd = SITE_D * factor
-                const bx = (SITE_W - bw) / 2
-                const by = (SITE_D - bd) / 2
                 const bz = SITE_H + drawIndex * (FLOOR_H + FLOOR_GAP)
 
                 const isExceeded = (!isFARCompliant || (!isCoverageCompliant && f.index === 0))
@@ -183,15 +206,50 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
                     ? EXCEEDED_PALETTE
                     : FLOOR_PALETTE[Math.min(f.index, FLOOR_PALETTE.length - 1)]
 
-                return { ...f, bx, by, bz, bw, bd, bh: FLOOR_H, palette, drawIndex, isExceeded }
-            })
-    }, [floorData, siteArea, hasData, isCoverageCompliant, isFARCompliant])
+                const poly = baseSitePolygon.map(p => ({
+                    x: (SITE_W / 2) + (p.x - SITE_W / 2) * factor,
+                    y: (SITE_D / 2) + (p.y - SITE_D / 2) * factor
+                }))
 
-    function topCenter(bx, by, bz, bw, bd, bh) {
-        const cx = bx + bw / 2
-        const cy = by + bd / 2
-        const iso = toIso(cx, cy, bz + bh)
-        return iso
+                return { ...f, poly, bz, bh: FLOOR_H, palette, drawIndex, isExceeded }
+            })
+    }, [floorData, siteArea, hasData, isCoverageCompliant, isFARCompliant, baseSitePolygon])
+
+    function topCenter(poly, bz, bh) {
+        let cx = 0, cy = 0
+        poly.forEach(p => { cx += p.x; cy += p.y })
+        cx /= poly.length
+        cy /= poly.length
+        return toIso(cx, cy, bz + bh)
+    }
+
+    function renderPolyTop(poly, z, fill, stroke, strokeWidth, opacity, dashArray, filter) {
+        const pts = poly.map(v => toIso(v.x, v.y, z)).map(p => `${p.sx},${p.sy}`).join(' ')
+        return <polygon points={pts} fill={fill} stroke={stroke} strokeWidth={strokeWidth} opacity={opacity} strokeDasharray={dashArray} filter={filter} />
+    }
+
+    function renderPolySides(poly, z, h, colorLeft, colorRight) {
+        const sides = []
+        for (let i = 0; i < poly.length; i++) {
+            const v1 = poly[i]
+            const v2 = poly[(i + 1) % poly.length]
+            const depth = (v1.x + v1.y + v2.x + v2.y) / 2
+            const dx = v2.x - v1.x
+            const dy = v2.y - v1.y
+            const color = (dx > dy) ? colorRight : colorLeft
+            sides.push({ v1, v2, depth, color })
+        }
+        sides.sort((a, b) => a.depth - b.depth)
+
+        return sides.map((s, idx) => {
+            const pts = [
+                toIso(s.v1.x, s.v1.y, z),
+                toIso(s.v2.x, s.v2.y, z),
+                toIso(s.v2.x, s.v2.y, z + h),
+                toIso(s.v1.x, s.v1.y, z + h)
+            ]
+            return <polygon key={idx} points={pts.map(p => `${p.sx},${p.sy}`).join(' ')} fill={s.color} stroke={s.color} strokeWidth="0.5" opacity="0.92" />
+        })
     }
 
     // Road label position helper
@@ -444,36 +502,15 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
                         })()}
 
                         {/* === GROUND PLANE (shadow) === */}
-                        <polygon
-                            points={isoRect(0, 0, 0, SITE_W, SITE_D, 0, 'top')}
-                            fill="#cbd5e1"
-                            opacity="0.3"
-                        />
+                        {renderPolyTop(baseSitePolygon, 0, "#cbd5e1", "none", "0", "0.3")}
 
                         {/* === SITE AREA SLAB === */}
-                        <polygon
-                            points={isoRect(0, 0, 0, SITE_W, SITE_D, SITE_H, 'top')}
-                            fill="#e2e8f0"
-                            stroke="#94a3b8"
-                            strokeWidth="1"
-                            filter="url(#dropShadow)"
-                        />
-                        <polygon
-                            points={isoRect(0, 0, 0, SITE_W, SITE_D, SITE_H, 'left')}
-                            fill="#cbd5e1"
-                            stroke="#94a3b8"
-                            strokeWidth="0.8"
-                        />
-                        <polygon
-                            points={isoRect(0, 0, 0, SITE_W, SITE_D, SITE_H, 'right')}
-                            fill="#b0bec5"
-                            stroke="#94a3b8"
-                            strokeWidth="0.8"
-                        />
+                        {renderPolySides(baseSitePolygon, 0, SITE_H, "#cbd5e1", "#b0bec5")}
+                        {renderPolyTop(baseSitePolygon, SITE_H, "#e2e8f0", "#94a3b8", "1", "1", 'none', "url(#dropShadow)")}
 
                         {/* Site Area label on top face */}
                         {(() => {
-                            const c = topCenter(0, 0, 0, SITE_W, SITE_D, SITE_H)
+                            const c = topCenter(baseSitePolygon, 0, SITE_H)
                             return (
                                 <text
                                     x={c.sx}
@@ -490,22 +527,13 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
                         })()}
 
                         {/* === Coverage outline === */}
-                        {siteArea > 0 && (
-                            <polygon
-                                points={isoRect(
-                                    (SITE_W - COV_W) / 2,
-                                    (SITE_D - COV_D) / 2,
-                                    0,
-                                    COV_W, COV_D, SITE_H,
-                                    'top'
-                                )}
-                                fill="none"
-                                stroke={isCoverageCompliant ? '#10b981' : '#ef4444'}
-                                strokeWidth="1.5"
-                                strokeDasharray="6 3"
-                                opacity="0.8"
-                            />
-                        )}
+                        {siteArea > 0 && (() => {
+                            const covPoly = baseSitePolygon.map(p => ({
+                                x: (SITE_W / 2) + (p.x - SITE_W / 2) * coverageFactor,
+                                y: (SITE_D / 2) + (p.y - SITE_D / 2) * coverageFactor
+                            }))
+                            return renderPolyTop(covPoly, SITE_H, "none", isCoverageCompliant ? '#10b981' : '#ef4444', "1.5", "0.8", "6 3")
+                        })()}
 
                         {siteArea > 0 && (() => {
                             const cx = (SITE_W - COV_W) / 2 + COV_W
@@ -527,8 +555,8 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
 
                         {/* === FLOOR BLOCKS === */}
                         {blocks.map((block) => {
-                            const { bx, by, bz, bw, bd, bh, palette, id, index, areaNum, drawIndex } = block
-                            const center = topCenter(bx, by, bz, bw, bd, bh)
+                            const { poly, bz, bh, palette, id, index, areaNum, drawIndex } = block
+                            const center = topCenter(poly, bz, bh)
 
                             return (
                                 <g
@@ -536,27 +564,8 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
                                     className="stack-block"
                                     style={{ animationDelay: `${drawIndex * 0.1}s` }}
                                 >
-                                    <polygon
-                                        points={isoRect(bx, by, bz, bw, bd, bh, 'left')}
-                                        fill={palette.left}
-                                        stroke={palette.left}
-                                        strokeWidth="0.5"
-                                        opacity="0.92"
-                                    />
-                                    <polygon
-                                        points={isoRect(bx, by, bz, bw, bd, bh, 'right')}
-                                        fill={palette.right}
-                                        stroke={palette.right}
-                                        strokeWidth="0.5"
-                                        opacity="0.92"
-                                    />
-                                    <polygon
-                                        points={isoRect(bx, by, bz, bw, bd, bh, 'top')}
-                                        fill={palette.top}
-                                        stroke={palette.top}
-                                        strokeWidth="0.5"
-                                        opacity="0.95"
-                                    />
+                                    {renderPolySides(poly, bz, bh, palette.left, palette.right)}
+                                    {renderPolyTop(poly, bz + bh, palette.top, palette.top, "0.5", "0.95")}
 
                                     <text
                                         x={center.sx}
@@ -573,8 +582,19 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
                                     </text>
 
                                     {(() => {
-                                        const bottom = toIso(bx + bw, by + bd, bz)
-                                        const top = toIso(bx + bw, by + bd, bz + bh)
+                                        // We find the corner furthest "down" (largest sy) to draw the height line.
+                                        let furthestVertex = poly[0]
+                                        let maxSy = -Infinity
+                                        poly.forEach(v => {
+                                            const p = toIso(v.x, v.y, bz)
+                                            if (p.sy > maxSy) {
+                                                maxSy = p.sy
+                                                furthestVertex = v
+                                            }
+                                        })
+                                        const bottom = toIso(furthestVertex.x, furthestVertex.y, bz)
+                                        const top = toIso(furthestVertex.x, furthestVertex.y, bz + bh)
+
                                         return (
                                             <line
                                                 x1={bottom.sx} y1={bottom.sy}

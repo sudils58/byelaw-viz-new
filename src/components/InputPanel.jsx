@@ -9,7 +9,7 @@ const ROAD_SIDES = [
     { key: 'west', label: 'West', icon: '←' },
 ]
 
-function InputPanel({ siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFloor, onUpdateFloorArea, roads, onToggleRoad, onUpdateRoad }) {
+function InputPanel({ siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFloor, onUpdateFloorArea, roads, onToggleRoad, onUpdateRoad, onDXFUpload, dxfError }) {
     const annaEquivalent = siteArea ? (parseFloat(siteArea) / ANNA_TO_SQFT).toFixed(2) : '0.00'
 
     return (
@@ -36,6 +36,28 @@ function InputPanel({ siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFl
                         className="glass-input w-full px-4 py-3 pr-16 text-lg font-semibold"
                     />
                     <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-medium text-white/40">sq ft</span>
+                </div>
+
+                {/* DXF Upload */}
+                <div className="mt-4">
+                    <label className="flex items-center justify-center w-full h-16 px-4 transition bg-white/5 border-2 border-white/10 border-dashed rounded-xl appearance-none cursor-pointer hover:border-indigo-400/50 hover:bg-white/10">
+                        <span className="flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <span className="font-medium text-white/50 text-sm">Upload DXF CAD file</span>
+                        </span>
+                        <input type="file" name="file_upload" className="hidden" accept=".dxf" onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                                onDXFUpload(e.target.files[0])
+                            }
+                            // Reset input value so the same file can be uploaded again if needed
+                            e.target.value = null
+                        }} />
+                    </label>
+                    {dxfError && (
+                        <p className="mt-2 text-xs text-red-400 font-medium">{dxfError}</p>
+                    )}
                 </div>
 
                 <div className="mt-3 flex items-center justify-between">

@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import InputPanel from './components/InputPanel'
 import OutputPanel from './components/OutputPanel'
 import Visualizer from './components/Visualizer'
+import { parseSiteBoundaryFromDXF, calculatePolygonArea } from './utils/dxfUtils'
 
 const DEFAULT_ROADS = {
     north: { enabled: false, width: '', row: '' },
@@ -17,6 +18,8 @@ export default function App() {
     const [maxCoverage, setMaxCoverage] = useState('40')
     const [roads, setRoads] = useState(DEFAULT_ROADS)
     const [theme, setTheme] = useState('dark')
+    const [sitePolygon, setSitePolygon] = useState(null)
+    const [dxfError, setDxfError] = useState(null)
 
     useEffect(() => {
         if (theme === 'light') {
@@ -66,6 +69,23 @@ export default function App() {
             ...prev,
             [side]: { ...prev[side], enabled: !prev[side].enabled }
         }))
+    }, [])
+
+    const handleDXFUpload = useCallback(async (file) => {
+        try {
+            setDxfError(null)
+            const text = await file.text()
+            const polygon = parseSiteBoundaryFromDXF(text)
+            setSitePolygon(polygon)
+            // Shoelace formula gives exact raw area. 
+            // Assuming standard unit configuration in Nepal/CAD drawings usually relies on exact scaling.
+            // We set the computed area directly.
+            const area = calculatePolygonArea(polygon)
+            setSiteArea(area.toFixed(2).toString())
+        } catch (err) {
+            setDxfError(err.message)
+            setSitePolygon(null)
+        }
     }, [])
 
     return (
@@ -184,6 +204,8 @@ export default function App() {
                             roads={roads}
                             onToggleRoad={toggleRoad}
                             onUpdateRoad={updateRoad}
+                            onDXFUpload={handleDXFUpload}
+                            dxfError={dxfError}
                         />
                     </div>
 
@@ -209,6 +231,7 @@ export default function App() {
                             isCoverageCompliant={isCoverageCompliant}
                             isFARCompliant={isFARCompliant}
                             roads={roads}
+                            sitePolygon={sitePolygon}
                         />
                     </div>
                 </div>
