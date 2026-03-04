@@ -181,8 +181,8 @@ export default function App() {
             {/* Footer */}
             <footer className="mt-12 relative z-10" style={{ background: 'rgba(15,23,42,0.4)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                    <p className="text-center text-sm text-white/35">
-                        KMC Building Compliance Tool — Architectural Thesis · Kathmandu University
+                    <p className="text-white/45 text-sm font-medium">
+                        KMC Building Compliance Tool — Hikari Architects
                     </p>
                 </div>
             </footer>
