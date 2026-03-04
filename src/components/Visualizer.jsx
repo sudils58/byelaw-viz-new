@@ -161,8 +161,9 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
 
     const SVG_W = 800
     const SVG_H = 800
+    // Center horiz, shift Y origin higher since the Z extrusion happens downwards visually in this projection
     const ORIGIN_X = SVG_W / 2
-    const ORIGIN_Y = SVG_H - 220
+    const ORIGIN_Y = SVG_H / 2 + 10
 
     const baseSitePolygon = useMemo(() => {
         if (sitePolygon && sitePolygon.length >= 3) {
@@ -177,22 +178,69 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
             const polyD = maxY - minY
             if (polyW > 0 && polyD > 0) {
                 const polyScale = Math.min(SITE_W / polyW, SITE_D / polyD) * 0.95
-                return sitePolygon.map(p => ({
-                    x: p.x * polyScale + SITE_W / 2,
-                    y: p.y * polyScale + SITE_D / 2
+
+                // First scale the polygon
+                const scaledPoly = sitePolygon.map(p => ({
+                    x: p.x * polyScale,
+                    y: p.y * polyScale
+                }))
+
+                // Find scaled bounding box center
+                let sMinX = Infinity, sMaxX = -Infinity, sMinY = Infinity, sMaxY = -Infinity
+                scaledPoly.forEach(p => {
+                    if (p.x < sMinX) sMinX = p.x
+                    if (p.x > sMaxX) sMaxX = p.x
+                    if (p.y < sMinY) sMinY = p.y
+                    if (p.y > sMaxY) sMaxY = p.y
+                })
+                const sCx = (sMinX + sMaxX) / 2
+                const sCy = (sMinY + sMaxY) / 2
+
+                // Shift to fit perfectly around origin (0,0) before isometric projection
+                return scaledPoly.map(p => ({
+                    x: p.x - sCx,
+                    y: p.y - sCy
                 }))
             }
         }
+
+        // If no DXF, generate a perfectly centered default rectangle
+        // Center the 200x140 rectangle around (0, 0)
         return [
-            { x: 0, y: 0 },
-            { x: SITE_W, y: 0 },
-            { x: SITE_W, y: SITE_D },
-            { x: 0, y: SITE_D }
+            { x: -SITE_W / 2, y: -SITE_D / 2 },
+            { x: SITE_W / 2, y: -SITE_D / 2 },
+            { x: SITE_W / 2, y: SITE_D / 2 },
+            { x: -SITE_W / 2, y: SITE_D / 2 }
         ]
     }, [sitePolygon])
 
+    function getCentroid(poly) {
+        let cx = 0, cy = 0
+        let area = 0
+        for (let i = 0; i < poly.length; i++) {
+            const p1 = poly[i]
+            const p2 = poly[(i + 1) % poly.length]
+            const cross = p1.x * p2.y - p2.x * p1.y
+            area += cross
+            cx += (p1.x + p2.x) * cross
+            cy += (p1.y + p2.y) * cross
+        }
+        area /= 2
+
+        if (Math.abs(area) < 0.0001) {
+            // Fallback to average if polygon is invalid (line or point)
+            cx = 0; cy = 0
+            poly.forEach(p => { cx += p.x; cy += p.y })
+            return { x: cx / poly.length, y: cy / poly.length }
+        }
+
+        return { x: cx / (6 * area), y: cy / (6 * area) }
+    }
+
     const blocks = useMemo(() => {
         if (!hasData) return []
+
+        const siteCentroid = getCentroid(baseSitePolygon)
 
         return floorData
             .filter(f => f.areaNum > 0)
@@ -206,9 +254,10 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
                     ? EXCEEDED_PALETTE
                     : FLOOR_PALETTE[Math.min(f.index, FLOOR_PALETTE.length - 1)]
 
+                // Scale around the actual geometric centroid, not the SVG bounding box center
                 const poly = baseSitePolygon.map(p => ({
-                    x: (SITE_W / 2) + (p.x - SITE_W / 2) * factor,
-                    y: (SITE_D / 2) + (p.y - SITE_D / 2) * factor
+                    x: siteCentroid.x + (p.x - siteCentroid.x) * factor,
+                    y: siteCentroid.y + (p.y - siteCentroid.y) * factor
                 }))
 
                 return { ...f, poly, bz, bh: FLOOR_H, palette, drawIndex, isExceeded }
@@ -216,11 +265,8 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
     }, [floorData, siteArea, hasData, isCoverageCompliant, isFARCompliant, baseSitePolygon])
 
     function topCenter(poly, bz, bh) {
-        let cx = 0, cy = 0
-        poly.forEach(p => { cx += p.x; cy += p.y })
-        cx /= poly.length
-        cy /= poly.length
-        return toIso(cx, cy, bz + bh)
+        const c = getCentroid(poly)
+        return toIso(c.x, c.y, bz + bh)
     }
 
     function renderPolyTop(poly, z, fill, stroke, strokeWidth, opacity, dashArray, filter) {
@@ -233,12 +279,23 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
         for (let i = 0; i < poly.length; i++) {
             const v1 = poly[i]
             const v2 = poly[(i + 1) % poly.length]
-            const depth = (v1.x + v1.y + v2.x + v2.y) / 2
+
+            // In isometric projection (30 degree rotation around Z, then rotated down 35.264 degrees),
+            // a point further 'back' translates to a lower `sy` coordinate on the screen.
+            // Since SVG renders painter's-algorithm style (back-to-front), we must sort the faces
+            // by their projected visual depth, drawing the back-most faces first.
+            const midX = (v1.x + v2.x) / 2
+            const midY = (v1.y + v2.y) / 2
+            const depth = toIso(midX, midY, z).sy
+
             const dx = v2.x - v1.x
             const dy = v2.y - v1.y
+            // Choose color based on slope to simulate directional lighting
             const color = (dx > dy) ? colorRight : colorLeft
             sides.push({ v1, v2, depth, color })
         }
+
+        // Sort lowest projected `sy` first (draw from back to front)
         sides.sort((a, b) => a.depth - b.depth)
 
         return sides.map((s, idx) => {
@@ -528,17 +585,26 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
 
                         {/* === Coverage outline === */}
                         {siteArea > 0 && (() => {
+                            const c = getCentroid(baseSitePolygon)
                             const covPoly = baseSitePolygon.map(p => ({
-                                x: (SITE_W / 2) + (p.x - SITE_W / 2) * coverageFactor,
-                                y: (SITE_D / 2) + (p.y - SITE_D / 2) * coverageFactor
+                                x: c.x + (p.x - c.x) * coverageFactor,
+                                y: c.y + (p.y - c.y) * coverageFactor
                             }))
                             return renderPolyTop(covPoly, SITE_H, "none", isCoverageCompliant ? '#10b981' : '#ef4444', "1.5", "0.8", "6 3")
                         })()}
 
                         {siteArea > 0 && (() => {
-                            const cx = (SITE_W - COV_W) / 2 + COV_W
-                            const cy = (SITE_D - COV_D) / 2
-                            const p = toIso(cx + 4, cy, SITE_H)
+                            const c = getCentroid(baseSitePolygon)
+                            let rightMost = { x: -Infinity, y: 0 }
+                            baseSitePolygon.forEach(p => {
+                                const scaledX = c.x + (p.x - c.x) * coverageFactor
+                                const scaledY = c.y + (p.y - c.y) * coverageFactor
+                                if (scaledX > rightMost.x) {
+                                    rightMost = { x: scaledX, y: scaledY }
+                                }
+                            })
+
+                            const p = toIso(rightMost.x + 8, rightMost.y, SITE_H)
                             return (
                                 <text
                                     x={p.sx}
