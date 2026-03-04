@@ -60,7 +60,7 @@ const EXCEEDED_PALETTE = { top: '#f87171', left: '#ef4444', right: '#dc2626' }
 // Road rendering scale: 1 foot in input = this many 3D units
 const ROAD_SCALE = 1.5
 
-function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARCompliant, roads, sitePolygon }) {
+function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARCompliant, roads, setbacks, sitePolygon }) {
 
     // --- Zoom & Pan state ---
     const [zoom, setZoom] = useState(1)
@@ -581,6 +581,50 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
                                     SITE {siteArea > 0 ? `— ${siteArea.toLocaleString()} sq ft` : 'AREA'}
                                 </text>
                             )
+                        })()}
+
+                        {/* === Setbacks outline === */}
+                        {(() => {
+                            const front = parseFloat(setbacks?.front) || 0
+                            const back = parseFloat(setbacks?.back) || 0
+                            const left = parseFloat(setbacks?.left) || 0
+                            const right = parseFloat(setbacks?.right) || 0
+
+                            if (front > 0 || back > 0 || left > 0 || right > 0) {
+                                // Calculate the bounding box of the normalized baseSitePolygon
+                                let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity
+                                baseSitePolygon.forEach(p => {
+                                    if (p.x < minX) minX = p.x
+                                    if (p.x > maxX) maxX = p.x
+                                    if (p.y < minY) minY = p.y
+                                    if (p.y > maxY) maxY = p.y
+                                })
+
+                                const width = maxX - minX
+                                const height = maxY - minY
+
+                                // Avoid inverting the polygon if setbacks are too large
+                                const safeLeft = Math.min(left, width / 2 - 1)
+                                const safeRight = Math.min(right, width / 2 - 1)
+                                const safeFront = Math.min(front, height / 2 - 1) // Assuming front is South/bottom
+                                const safeBack = Math.min(back, height / 2 - 1)
+
+                                const scaleX = (width - safeLeft - safeRight) / width
+                                const scaleY = (height - safeFront - safeBack) / height
+
+                                // Approximate shifting the centroid based on the unbalanced setbacks
+                                const c = getCentroid(baseSitePolygon)
+                                const shiftX = (safeLeft - safeRight) / 2
+                                const shiftY = (safeFront - safeBack) / 2
+
+                                const setbackPoly = baseSitePolygon.map(p => ({
+                                    x: c.x - shiftX + (p.x - c.x) * scaleX,
+                                    y: c.y - shiftY + (p.y - c.y) * scaleY
+                                }))
+
+                                return renderPolyTop(setbackPoly, SITE_H + 0.5, "none", "rgba(239, 68, 68, 0.9)", "2", "0.9", "8 4")
+                            }
+                            return null
                         })()}
 
                         {/* === Coverage outline === */}

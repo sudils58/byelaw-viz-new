@@ -9,7 +9,7 @@ const ROAD_SIDES = [
     { key: 'west', label: 'West', icon: '←' },
 ]
 
-function InputPanel({ siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFloor, onUpdateFloorArea, roads, onToggleRoad, onUpdateRoad, onDXFUpload, dxfError }) {
+function InputPanel({ siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFloor, onUpdateFloorArea, roads, onToggleRoad, onUpdateRoad, setbacks, onUpdateSetback, onDXFUpload, dxfError, dxfUnit, onDxfUnitChange }) {
     const annaEquivalent = siteArea ? (parseFloat(siteArea) / ANNA_TO_SQFT).toFixed(2) : '0.00'
 
     return (
@@ -39,8 +39,26 @@ function InputPanel({ siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFl
                 </div>
 
                 {/* DXF Upload */}
-                <div className="mt-4">
-                    <label className="flex items-center justify-center w-full h-16 px-4 transition bg-white/5 border-2 border-white/10 border-dashed rounded-xl appearance-none cursor-pointer hover:border-indigo-400/50 hover:bg-white/10">
+                <div className="mt-4 border border-white/10 rounded-xl p-3 bg-white/5">
+                    <div className="flex items-center justify-between mb-3 px-1">
+                        <span className="text-xs font-semibold text-white/50 uppercase tracking-wider">CAD Drawing Units</span>
+                        <div className="flex gap-2 bg-slate-900/50 p-1 rounded-lg border border-white/5">
+                            <button
+                                onClick={() => onDxfUnitChange('inches')}
+                                className={`px-2 py-1 text-[10px] font-medium rounded-md transition-colors ${dxfUnit === 'inches' ? 'bg-indigo-500/30 text-indigo-300' : 'text-white/40 hover:text-white/70'}`}
+                            >
+                                Inches
+                            </button>
+                            <button
+                                onClick={() => onDxfUnitChange('feet')}
+                                className={`px-2 py-1 text-[10px] font-medium rounded-md transition-colors ${dxfUnit === 'feet' ? 'bg-indigo-500/30 text-indigo-300' : 'text-white/40 hover:text-white/70'}`}
+                            >
+                                Feet
+                            </button>
+                        </div>
+                    </div>
+
+                    <label className="flex items-center justify-center w-full h-12 px-2 transition bg-white/5 border border-white/10 border-dashed rounded-lg appearance-none cursor-pointer hover:border-indigo-400/50 hover:bg-white/10">
                         <span className="flex items-center space-x-2">
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
@@ -151,6 +169,40 @@ function InputPanel({ siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFl
                             </div>
                         )
                     })}
+                </div>
+            </div>
+
+            {/* Setbacks Configuration Card */}
+            <div className="glass-card p-6">
+                <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                        <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5" />
+                        </svg>
+                    </div>
+                    <h3 className="text-sm font-semibold text-white/80 uppercase tracking-wider">Setbacks</h3>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                    {['front', 'back', 'left', 'right'].map((side) => (
+                        <div key={side} className="bg-white/5 border border-white/10 rounded-xl p-3">
+                            <label className="text-[10px] font-semibold text-white/40 uppercase tracking-wider mb-2 block">
+                                {side} Setback
+                            </label>
+                            <div className="relative">
+                                <input
+                                    id={`setback-${side}`}
+                                    type="number"
+                                    min="0"
+                                    value={setbacks?.[side] || ''}
+                                    onChange={(e) => onUpdateSetback(side, e.target.value)}
+                                    placeholder="0"
+                                    className="glass-input w-full px-3 py-2 pr-9 text-sm font-medium"
+                                />
+                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-white/35">ft</span>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
 

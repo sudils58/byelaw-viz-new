@@ -3,12 +3,20 @@ import InputPanel from './components/InputPanel'
 import OutputPanel from './components/OutputPanel'
 import Visualizer from './components/Visualizer'
 import { parseSiteBoundaryFromDXF, calculatePolygonArea } from './utils/dxfUtils'
+import { ErrorBoundary } from './ErrorBoundary'
 
 const DEFAULT_ROADS = {
     north: { enabled: false, width: '', row: '' },
     south: { enabled: false, width: '', row: '' },
     east: { enabled: false, width: '', row: '' },
     west: { enabled: false, width: '', row: '' },
+}
+
+const DEFAULT_SETBACKS = {
+    front: '',
+    back: '',
+    left: '',
+    right: ''
 }
 
 export default function App() {
@@ -20,6 +28,8 @@ export default function App() {
     const [theme, setTheme] = useState('dark')
     const [sitePolygon, setSitePolygon] = useState(null)
     const [dxfError, setDxfError] = useState(null)
+    const [dxfUnit, setDxfUnit] = useState('inches') // 'inches' or 'feet'
+    const [setbacks, setSetbacks] = useState(DEFAULT_SETBACKS)
 
     useEffect(() => {
         if (theme === 'light') {
@@ -64,6 +74,13 @@ export default function App() {
         }))
     }, [])
 
+    const updateSetback = useCallback((side, value) => {
+        setSetbacks(prev => ({
+            ...prev,
+            [side]: value
+        }))
+    }, [])
+
     const toggleRoad = useCallback((side) => {
         setRoads(prev => ({
             ...prev,
@@ -75,18 +92,26 @@ export default function App() {
         try {
             setDxfError(null)
             const text = await file.text()
-            const polygon = parseSiteBoundaryFromDXF(text)
+            let polygon = parseSiteBoundaryFromDXF(text)
+
+            // If the DXF is drawn in inches, we need to divide all coordinates by 12 
+            // so the resulting polygon area (Shoelace) and visual scale is in exact SQ FT.
+            if (dxfUnit === 'inches') {
+                polygon = polygon.map(p => ({
+                    x: p.x / 12,
+                    y: p.y / 12
+                }))
+            }
+
             setSitePolygon(polygon)
-            // Shoelace formula gives exact raw area. 
-            // Assuming standard unit configuration in Nepal/CAD drawings usually relies on exact scaling.
-            // We set the computed area directly.
+            // Shoelace formula gives exact raw area based on scaled coordinates
             const area = calculatePolygonArea(polygon)
             setSiteArea(area.toFixed(2).toString())
         } catch (err) {
             setDxfError(err.message)
             setSitePolygon(null)
         }
-    }, [])
+    }, [dxfUnit])
 
     return (
         <div className="min-h-screen glass-bg">
@@ -204,8 +229,12 @@ export default function App() {
                             roads={roads}
                             onToggleRoad={toggleRoad}
                             onUpdateRoad={updateRoad}
+                            setbacks={setbacks}
+                            onUpdateSetback={updateSetback}
                             onDXFUpload={handleDXFUpload}
                             dxfError={dxfError}
+                            dxfUnit={dxfUnit}
+                            onDxfUnitChange={setDxfUnit}
                         />
                     </div>
 
@@ -224,15 +253,18 @@ export default function App() {
                             maxFAR={farNum}
                             maxCoveragePercent={parseFloat(maxCoverage) || 0}
                         />
-                        <Visualizer
-                            siteArea={siteAreaNum}
-                            floors={floors}
-                            maxCoverage={coverageNum}
-                            isCoverageCompliant={isCoverageCompliant}
-                            isFARCompliant={isFARCompliant}
-                            roads={roads}
-                            sitePolygon={sitePolygon}
-                        />
+                        <ErrorBoundary>
+                            <Visualizer
+                                siteArea={siteAreaNum}
+                                floors={floors}
+                                maxCoverage={coverageNum}
+                                isCoverageCompliant={isCoverageCompliant}
+                                isFARCompliant={isFARCompliant}
+                                roads={roads}
+                                setbacks={setbacks}
+                                sitePolygon={sitePolygon}
+                            />
+                        </ErrorBoundary>
                     </div>
                 </div>
             </main>
