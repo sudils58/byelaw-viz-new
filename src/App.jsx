@@ -63,6 +63,17 @@ export default function App() {
         setFloors(prev => prev.filter(f => f.id !== id))
     }, [])
 
+    const duplicateFloor = useCallback((id) => {
+        setFloors(prev => {
+            const index = prev.findIndex(f => f.id === id)
+            if (index === -1) return prev
+            const newFloor = { id: Date.now(), area: prev[index].area }
+            const newFloors = [...prev]
+            newFloors.splice(index + 1, 0, newFloor)
+            return newFloors
+        })
+    }, [])
+
     const updateFloorArea = useCallback((id, area) => {
         setFloors(prev => prev.map(f => f.id === id ? { ...f, area } : f))
     }, [])
@@ -225,6 +236,7 @@ export default function App() {
                             floors={floors}
                             onAddFloor={addFloor}
                             onRemoveFloor={removeFloor}
+                            onDuplicateFloor={duplicateFloor}
                             onUpdateFloorArea={updateFloorArea}
                             roads={roads}
                             onToggleRoad={toggleRoad}

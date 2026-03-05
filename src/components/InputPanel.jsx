@@ -9,7 +9,7 @@ const ROAD_SIDES = [
     { key: 'west', label: 'West', icon: '←' },
 ]
 
-function InputPanel({ siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFloor, onUpdateFloorArea, roads, onToggleRoad, onUpdateRoad, setbacks, onUpdateSetback, onDXFUpload, dxfError, dxfUnit, onDxfUnitChange }) {
+function InputPanel({ siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFloor, onDuplicateFloor, onUpdateFloorArea, roads, onToggleRoad, onUpdateRoad, setbacks, onUpdateSetback, onDXFUpload, dxfError, dxfUnit, onDxfUnitChange }) {
     const annaEquivalent = siteArea ? (parseFloat(siteArea) / ANNA_TO_SQFT).toFixed(2) : '0.00'
 
     return (
@@ -149,7 +149,7 @@ function InputPanel({ siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFl
                                         </div>
                                         <div>
                                             <label className="text-[10px] font-semibold text-white/40 uppercase tracking-wider mb-1 block">
-                                                ROW
+                                                ROW <span className="normal-case font-normal text-white/25">(total)</span>
                                             </label>
                                             <div className="relative">
                                                 <input
@@ -163,6 +163,7 @@ function InputPanel({ siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFl
                                                 />
                                                 <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-white/35">ft</span>
                                             </div>
+                                            <p className="text-[9px] text-white/20 mt-1">boundary = ROW ÷ 2 from centerline</p>
                                         </div>
                                     </div>
                                 )}
@@ -249,15 +250,29 @@ function InputPanel({ siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFl
                                 />
                                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-white/35">sq ft</span>
                             </div>
-                            <button
-                                id={`remove-floor-${index}`}
-                                onClick={() => onRemoveFloor(floor.id)}
-                                className="flex-shrink-0 w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:bg-red-500/15 hover:border-red-500/30 hover:text-red-400 transition-all opacity-0 group-hover:opacity-100"
-                            >
-                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
+                            <div className="flex-shrink-0 flex items-center gap-1.5">
+                                {/* Duplicate button */}
+                                <button
+                                    id={`duplicate-floor-${index}`}
+                                    onClick={() => onDuplicateFloor(floor.id)}
+                                    title="Duplicate floor"
+                                    className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:bg-indigo-500/15 hover:border-indigo-500/30 hover:text-indigo-400 transition-all opacity-0 group-hover:opacity-100"
+                                >
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                </button>
+                                {/* Remove button */}
+                                <button
+                                    id={`remove-floor-${index}`}
+                                    onClick={() => onRemoveFloor(floor.id)}
+                                    className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/30 hover:bg-red-500/15 hover:border-red-500/30 hover:text-red-400 transition-all opacity-0 group-hover:opacity-100"
+                                >
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     ))}
 
