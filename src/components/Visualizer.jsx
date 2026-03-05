@@ -482,17 +482,51 @@ function Visualizer({ siteArea, floors, maxCoverage, isCoverageCompliant, isFARC
                             )
                         })()}
 
-                        {/* Compass */}
+                        {/* Compass — flat on ground plane, arrow points toward north edge (−Y) */}
                         {(() => {
-                            const cp = toIso(sMinX - 30, sMinY - 30, 0)
+                            // Place compass to the upper-left of the site in 3D space
+                            const cx = siteBBox.minX - 35
+                            const cy = siteBBox.minY - 35
+                            const L = 18  // arrow length
+                            const HW = 5  // arrowhead half-width
+
+                            // Shaft: base → tip (north = −Y direction)
+                            const pBase = toIso(cx, cy + 6, 0)
+                            const pTip = toIso(cx, cy - L, 0)
+                            // Arrowhead triangle
+                            const pLeft = toIso(cx - HW, cy - L + 8, 0)
+                            const pRight = toIso(cx + HW, cy - L + 8, 0)
+                            // "N" label just beyond the tip
+                            const pLabel = toIso(cx, cy - L - 8, 0)
+                            // Small circle at base
+                            const pCirc = toIso(cx, cy + 6, 0)
+
                             return (
-                                <g transform={`translate(${cp.sx}, ${cp.sy})`} opacity="0.5">
-                                    <text x="0" y="-8" textAnchor="middle" fill="#64748b" fontSize="10" fontWeight="800" fontFamily="Inter, sans-serif">N</text>
-                                    <line x1="0" y1="-5" x2="0" y2="8" stroke="#64748b" strokeWidth="1.2" />
-                                    <polygon points="-3,0 3,0 0,-5" fill="#64748b" />
+                                <g opacity="0.65">
+                                    {/* Shaft */}
+                                    <line
+                                        x1={pBase.sx} y1={pBase.sy}
+                                        x2={pTip.sx} y2={pTip.sy}
+                                        stroke="#94a3b8" strokeWidth="1.5" strokeLinecap="round"
+                                    />
+                                    {/* Arrowhead */}
+                                    <polygon
+                                        points={`${pTip.sx},${pTip.sy} ${pLeft.sx},${pLeft.sy} ${pRight.sx},${pRight.sy}`}
+                                        fill="#94a3b8"
+                                    />
+                                    {/* Base dot */}
+                                    <circle cx={pCirc.sx} cy={pCirc.sy} r="2.5" fill="#94a3b8" />
+                                    {/* "N" label */}
+                                    <text
+                                        x={pLabel.sx} y={pLabel.sy}
+                                        textAnchor="middle" dominantBaseline="middle"
+                                        fill="#cbd5e1" fontSize="9" fontWeight="700"
+                                        fontFamily="Inter, sans-serif"
+                                    >N</text>
                                 </g>
                             )
                         })()}
+
                     </g>
 
                     {/* Empty state */}
