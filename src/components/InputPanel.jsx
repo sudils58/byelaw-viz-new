@@ -9,11 +9,40 @@ const ROAD_SIDES = [
     { key: 'west', label: 'West', icon: '←' },
 ]
 
-function InputPanel({ siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFloor, onDuplicateFloor, onUpdateFloorArea, roads, onToggleRoad, onUpdateRoad, setbacks, onUpdateSetback, onDXFUpload, dxfError, dxfUnit, onDxfUnitChange }) {
+function InputPanel({ location, onLocationChange, siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFloor, onDuplicateFloor, onUpdateFloorArea, roads, onToggleRoad, onUpdateRoad, setbacks, onUpdateSetback, onDXFUpload, dxfError, dxfUnit, onDxfUnitChange }) {
     const annaEquivalent = siteArea ? (parseFloat(siteArea) / ANNA_TO_SQFT).toFixed(2) : '0.00'
 
     return (
         <div className="space-y-6">
+            {/* Location Selector Card */}
+            <div className="glass-card p-6 border-indigo-500/30 border-2 shadow-[0_0_15px_rgba(99,102,241,0.15)] bg-white/[0.02]">
+                <div className="flex items-center gap-2 mb-4">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
+                        <svg className="w-4 h-4 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <h3 className="text-sm font-semibold text-white/80 uppercase tracking-wider">Municipality</h3>
+                </div>
+
+                <div className="relative">
+                    <select
+                        value={location}
+                        onChange={(e) => onLocationChange(e.target.value)}
+                        className="glass-input w-full px-4 py-3 text-lg font-semibold appearance-none bg-[#0f172a]/80 cursor-pointer border border-white/10 hover:border-indigo-400/50 transition-colors"
+                    >
+                        <option value="kathmandu">Kathmandu Metropolitan City</option>
+                        <option value="lalitpur">Lalitpur Metropolitan City</option>
+                        <option value="bhaktapur">Bhaktapur Municipality</option>
+                        <option value="custom">Custom Parameters</option>
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white/50">
+                        <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+                    </div>
+                </div>
+            </div>
+
             {/* Site Area Card */}
             <div className="glass-card p-6">
                 <div className="flex items-center gap-2 mb-4">
@@ -141,8 +170,9 @@ function InputPanel({ siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFl
                                                     min="0"
                                                     value={road.width}
                                                     onChange={(e) => onUpdateRoad(key, 'width', e.target.value)}
+                                                    disabled={location !== 'custom'}
                                                     placeholder="0"
-                                                    className="glass-input w-full px-3 py-2 pr-9 text-sm font-medium"
+                                                    className={`glass-input w-full px-3 py-2 pr-9 text-sm font-medium ${location !== 'custom' ? 'opacity-60 cursor-not-allowed' : ''}`}
                                                 />
                                                 <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-white/35">ft</span>
                                             </div>
@@ -197,8 +227,9 @@ function InputPanel({ siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFl
                                     min="0"
                                     value={setbacks?.[side] || ''}
                                     onChange={(e) => onUpdateSetback(side, e.target.value)}
+                                    disabled={location !== 'custom'}
                                     placeholder="0"
-                                    className="glass-input w-full px-3 py-2 pr-9 text-sm font-medium"
+                                    className={`glass-input w-full px-3 py-2 pr-9 text-sm font-medium ${location !== 'custom' ? 'opacity-60 cursor-not-allowed' : ''}`}
                                 />
                                 <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-white/35">ft</span>
                             </div>
