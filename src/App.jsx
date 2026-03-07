@@ -3,6 +3,8 @@ import InputPanel from './components/InputPanel'
 import OutputPanel from './components/OutputPanel'
 import Visualizer from './components/Visualizer'
 import Navigation from './components/Navigation'
+import PermitGuide from './components/PermitGuide'
+import Resources from './components/Resources'
 import { parseSiteBoundaryFromDXF, calculatePolygonArea } from './utils/dxfUtils'
 import { ErrorBoundary } from './ErrorBoundary'
 
@@ -209,7 +211,7 @@ export default function App() {
                                     value={maxFAR}
                                     onChange={(e) => setMaxFAR(e.target.value)}
                                     disabled={location !== 'custom'}
-                                    className={`w-20 text-3xl font-extrabold text-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-indigo-400/60 focus:ring-2 focus:ring-indigo-400/20 ${location !== 'custom' ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                    className={`w - 20 text - 3xl font - extrabold text - center bg - white / 10 backdrop - blur - sm border border - white / 20 rounded - lg text - white placeholder: text - white / 30 focus: outline - none focus: border - indigo - 400 / 60 focus: ring - 2 focus: ring - indigo - 400 / 20 ${location !== 'custom' ? 'opacity-70 cursor-not-allowed' : ''} `}
                                 />
                                 <div className="text-xs text-indigo-200/70 uppercase tracking-wider font-medium mt-1">Max FAR</div>
                             </div>
@@ -225,7 +227,7 @@ export default function App() {
                                         value={maxCoverage}
                                         onChange={(e) => setMaxCoverage(e.target.value)}
                                         disabled={location !== 'custom'}
-                                        className={`w-20 text-3xl font-extrabold text-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-indigo-400/60 focus:ring-2 focus:ring-indigo-400/20 ${location !== 'custom' ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        className={`w - 20 text - 3xl font - extrabold text - center bg - white / 10 backdrop - blur - sm border border - white / 20 rounded - lg text - white placeholder: text - white / 30 focus: outline - none focus: border - indigo - 400 / 60 focus: ring - 2 focus: ring - indigo - 400 / 20 ${location !== 'custom' ? 'opacity-70 cursor-not-allowed' : ''} `}
                                     />
                                     <span className="text-xl font-bold text-white/70">%</span>
                                 </div>
@@ -242,7 +244,7 @@ export default function App() {
                                         value={maxHeight}
                                         onChange={(e) => setMaxHeight(e.target.value)}
                                         disabled={location !== 'custom'}
-                                        className={`w-20 text-3xl font-extrabold text-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-indigo-400/60 focus:ring-2 focus:ring-indigo-400/20 ${location !== 'custom' ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        className={`w - 20 text - 3xl font - extrabold text - center bg - white / 10 backdrop - blur - sm border border - white / 20 rounded - lg text - white placeholder: text - white / 30 focus: outline - none focus: border - indigo - 400 / 60 focus: ring - 2 focus: ring - indigo - 400 / 20 ${location !== 'custom' ? 'opacity-70 cursor-not-allowed' : ''} `}
                                     />
                                     <span className="text-xl font-bold text-white/70">ft</span>
                                 </div>
@@ -309,6 +311,12 @@ export default function App() {
                     </div>
                 </div>
             </main>
+
+            {/* Custom Permit Guide Section */}
+            <PermitGuide />
+
+            {/* Custom Resources Section */}
+            <Resources theme={theme} />
 
             {/* Footer */}
             <footer className="mt-12 relative z-10" style={{ background: 'rgba(15,23,42,0.4)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
