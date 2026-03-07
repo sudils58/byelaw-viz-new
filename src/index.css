@@ -42,6 +42,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* === SMOOTH SCROLLING & BOUNCE EFFECT === */
+html {
+  scroll-behavior: smooth;
+  overscroll-behavior-y: auto;
+  /* allows native bounce on supported browsers */
+}
+
 /* === AMBIENT BACKGROUND BLOBS === */
 .glass-bg {
   position: relative;
