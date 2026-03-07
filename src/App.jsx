@@ -22,31 +22,29 @@ const DEFAULT_SETBACKS = {
 
 const PREDEFINED_BYLAWS = {
     kathmandu: {
-        maxFAR: '3.5',
-        maxCoverage: '60',
-        maxHeight: '45',
-        setbacks: { front: '5', back: '5', left: '5', right: '5' },
-        roadWidth: '13'
+        residential: { maxFAR: '2.5', maxCoverage: '70', maxHeight: '45', setbacks: { front: '5', back: '5', left: '5', right: '5' }, roadWidth: '13' },
+        commercial: { maxFAR: '3.5', maxCoverage: '60', maxHeight: '60', setbacks: { front: '5', back: '5', left: '5', right: '5' }, roadWidth: '13' },
+        institutional: { maxFAR: '2.0', maxCoverage: '50', maxHeight: '45', setbacks: { front: '10', back: '10', left: '10', right: '10' }, roadWidth: '20' },
+        mixed: { maxFAR: '3.0', maxCoverage: '60', maxHeight: '50', setbacks: { front: '5', back: '5', left: '5', right: '5' }, roadWidth: '13' },
     },
     lalitpur: {
-        maxFAR: '3.0',
-        maxCoverage: '60',
-        maxHeight: '45',
-        setbacks: { front: '5', back: '5', left: '5', right: '5' },
-        roadWidth: '13'
+        residential: { maxFAR: '2.5', maxCoverage: '70', maxHeight: '45', setbacks: { front: '5', back: '5', left: '5', right: '5' }, roadWidth: '13' },
+        commercial: { maxFAR: '3.5', maxCoverage: '60', maxHeight: '60', setbacks: { front: '5', back: '5', left: '5', right: '5' }, roadWidth: '13' },
+        institutional: { maxFAR: '2.0', maxCoverage: '50', maxHeight: '45', setbacks: { front: '10', back: '10', left: '10', right: '10' }, roadWidth: '20' },
+        mixed: { maxFAR: '3.0', maxCoverage: '60', maxHeight: '50', setbacks: { front: '5', back: '5', left: '5', right: '5' }, roadWidth: '13' },
     },
     bhaktapur: {
-        maxFAR: '3.0',
-        maxCoverage: '60',
-        maxHeight: '45',
-        setbacks: { front: '5', back: '5', left: '5', right: '5' },
-        roadWidth: '13'
+        residential: { maxFAR: '2.5', maxCoverage: '70', maxHeight: '45', setbacks: { front: '5', back: '5', left: '5', right: '5' }, roadWidth: '13' },
+        commercial: { maxFAR: '3.5', maxCoverage: '60', maxHeight: '60', setbacks: { front: '5', back: '5', left: '5', right: '5' }, roadWidth: '13' },
+        institutional: { maxFAR: '2.0', maxCoverage: '50', maxHeight: '45', setbacks: { front: '10', back: '10', left: '10', right: '10' }, roadWidth: '20' },
+        mixed: { maxFAR: '3.0', maxCoverage: '60', maxHeight: '50', setbacks: { front: '5', back: '5', left: '5', right: '5' }, roadWidth: '13' },
     }
 }
 
 export default function App() {
     const [siteArea, setSiteArea] = useState('')
     const [location, setLocation] = useState('custom')
+    const [buildingType, setBuildingType] = useState('residential')
     const [floors, setFloors] = useState([])
     const [maxFAR, setMaxFAR] = useState('3.0')
     const [maxCoverage, setMaxCoverage] = useState('40')
@@ -124,19 +122,18 @@ export default function App() {
             const isNowEnabled = !prev[side].enabled;
             let newWidth = prev[side].width;
             if (isNowEnabled && location !== 'custom') {
-                newWidth = PREDEFINED_BYLAWS[location].roadWidth;
+                newWidth = PREDEFINED_BYLAWS[location][buildingType].roadWidth;
             }
             return {
                 ...prev,
                 [side]: { ...prev[side], enabled: isNowEnabled, width: newWidth }
             };
         })
-    }, [location])
+    }, [location, buildingType])
 
-    const handleLocationChange = useCallback((newLocation) => {
-        setLocation(newLocation)
+    const applyBylaws = useCallback((newLocation, newBuildingType) => {
         if (newLocation !== 'custom') {
-            const bylaws = PREDEFINED_BYLAWS[newLocation]
+            const bylaws = PREDEFINED_BYLAWS[newLocation][newBuildingType]
             setMaxFAR(bylaws.maxFAR)
             setMaxCoverage(bylaws.maxCoverage)
             setMaxHeight(bylaws.maxHeight)
@@ -153,6 +150,16 @@ export default function App() {
             })
         }
     }, [])
+
+    const handleLocationChange = useCallback((newLocation) => {
+        setLocation(newLocation)
+        applyBylaws(newLocation, buildingType)
+    }, [buildingType, applyBylaws])
+
+    const handleBuildingTypeChange = useCallback((newBuildingType) => {
+        setBuildingType(newBuildingType)
+        applyBylaws(location, newBuildingType)
+    }, [location, applyBylaws])
 
     const handleDXFUpload = useCallback(async (file) => {
         try {
@@ -184,7 +191,7 @@ export default function App() {
             <Navigation theme={theme} setTheme={setTheme} />
 
             {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-28 relative z-10">
+            <main id="home" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-28 relative z-10">
                 {/* Zone Info Banner — now editable */}
                 <div className="mb-8 glass-banner rounded-2xl p-6 text-white">
                     <div className="flex flex-wrap items-center justify-between gap-4">
@@ -245,12 +252,14 @@ export default function App() {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div id="compliance" className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Left Column - Input */}
                     <div className="lg:col-span-4">
                         <InputPanel
                             location={location}
                             onLocationChange={handleLocationChange}
+                            buildingType={buildingType}
+                            onBuildingTypeChange={handleBuildingTypeChange}
                             siteArea={siteArea}
                             onSiteAreaChange={setSiteArea}
                             floors={floors}

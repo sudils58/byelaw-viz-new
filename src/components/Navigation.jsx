@@ -77,11 +77,17 @@ export default function Navigation({ theme, setTheme }) {
 
                 {/* Navigation Links */}
                 <nav className="hidden lg:flex items-center gap-8 text-sm font-medium text-white/70">
-                    <a href="#home" className="hover:text-white transition-colors">Home</a>
-                    <a href="#compliance" className="text-white font-semibold drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] bg-white/10 px-4 py-1.5 rounded-full border border-white/10">Check Compliance</a>
-                    <a href="#guide" className="hover:text-white transition-colors">Permit Guide</a>
-                    <a href="#resources" className="hover:text-white transition-colors">Resources</a>
-                    <a href="#about" className="hover:text-white transition-colors">About</a>
+                    <button onClick={() => {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }} className="hover:text-white transition-colors cursor-pointer focus:outline-none">Home</button>
+
+                    <button onClick={() => {
+                        document.getElementById('compliance')?.scrollIntoView({ behavior: 'smooth' });
+                    }} className="text-white font-semibold drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] bg-white/10 px-4 py-1.5 rounded-full border border-white/10 cursor-pointer focus:outline-none">Check Compliance</button>
+
+                    <a href="https://kmc.gov.np/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Permit Guide</a>
+                    <a href="https://kmc.gov.np/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Resources</a>
+                    <a href="https://github.com/sudils58/byelaw-viz-new" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">About</a>
                 </nav>
 
                 {/* Theme Toggle & Mobile Menu */}

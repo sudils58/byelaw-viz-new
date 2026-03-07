@@ -9,7 +9,7 @@ const ROAD_SIDES = [
     { key: 'west', label: 'West', icon: '←' },
 ]
 
-function InputPanel({ location, onLocationChange, siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFloor, onDuplicateFloor, onUpdateFloorArea, roads, onToggleRoad, onUpdateRoad, setbacks, onUpdateSetback, onDXFUpload, dxfError, dxfUnit, onDxfUnitChange }) {
+function InputPanel({ location, onLocationChange, buildingType, onBuildingTypeChange, siteArea, onSiteAreaChange, floors, onAddFloor, onRemoveFloor, onDuplicateFloor, onUpdateFloorArea, roads, onToggleRoad, onUpdateRoad, setbacks, onUpdateSetback, onDXFUpload, dxfError, dxfUnit, onDxfUnitChange }) {
     const annaEquivalent = siteArea ? (parseFloat(siteArea) / ANNA_TO_SQFT).toFixed(2) : '0.00'
 
     return (
@@ -40,6 +40,38 @@ function InputPanel({ location, onLocationChange, siteArea, onSiteAreaChange, fl
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white/50">
                         <svg className="fill-current h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
                     </div>
+                </div>
+
+                {/* Building Type Dropdown (Only show if not Custom location) */}
+                <div className={`mt-4 pt-4 border-t border-white/10 transition-all duration-300 ${location === 'custom' ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <div className="flex items-center gap-2 mb-3">
+                        <div className="w-6 h-6 rounded-md bg-amber-500/20 flex items-center justify-center">
+                            <svg className="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                        </div>
+                        <h4 className="text-xs font-semibold text-white/70 uppercase tracking-wider">Building Type</h4>
+                    </div>
+
+                    <div className="relative">
+                        <select
+                            value={buildingType}
+                            onChange={(e) => onBuildingTypeChange(e.target.value)}
+                            disabled={location === 'custom'}
+                            className={`glass-input w-full px-4 py-2.5 text-sm font-semibold appearance-none bg-[#0f172a]/80 border border-white/10 hover:border-amber-400/50 transition-colors ${location === 'custom' ? 'cursor-not-allowed text-white/30' : 'cursor-pointer'}`}
+                        >
+                            <option value="residential">Residential</option>
+                            <option value="commercial">Commercial</option>
+                            <option value="institutional">Institutional / Public</option>
+                            <option value="mixed">Mixed Use</option>
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white/50">
+                            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" /></svg>
+                        </div>
+                    </div>
+                    {location !== 'custom' && (
+                        <p className="text-[10px] text-indigo-300/60 mt-2 ml-1">By-laws applied based on 2081 BS update.</p>
+                    )}
                 </div>
             </div>
 
