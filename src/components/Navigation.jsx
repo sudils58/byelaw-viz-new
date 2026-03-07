@@ -43,7 +43,7 @@ export default function Navigation({ theme, setTheme }) {
             {/* The actual floating bar */}
             <div
                 ref={navRef}
-                className="pointer-events-auto bg-[#0f172a]/60 backdrop-blur-xl border border-white/10 px-6 py-3 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] flex items-center justify-between w-full max-w-6xl transition-transform duration-700 ease-out"
+                className="pointer-events-auto glass-header px-8 py-3.5 rounded-full flex items-center justify-between w-full max-w-6xl transition-transform duration-700 ease-out"
             >
                 {/* Logo & Title */}
                 <div className="flex items-center gap-3 w-[300px]">
@@ -85,8 +85,8 @@ export default function Navigation({ theme, setTheme }) {
                         document.getElementById('compliance')?.scrollIntoView({ behavior: 'smooth' });
                     }} className="text-white font-semibold drop-shadow-[0_0_8px_rgba(255,255,255,0.3)] bg-white/10 px-4 py-1.5 rounded-full border border-white/10 cursor-pointer focus:outline-none">Check Compliance</button>
 
-                    <a href="https://kmc.gov.np/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Permit Guide</a>
-                    <a href="https://kmc.gov.np/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Resources</a>
+                    <a href="https://by-laws-checker.vercel.app/permit-guide" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Permit Guide</a>
+                    <a href="https://by-laws-checker.vercel.app/resources" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Resources</a>
                     <a href="https://github.com/sudils58/byelaw-viz-new" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">About</a>
                 </nav>
 

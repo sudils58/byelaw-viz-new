@@ -30,7 +30,7 @@ function InputPanel({ location, onLocationChange, buildingType, onBuildingTypeCh
                     <select
                         value={location}
                         onChange={(e) => onLocationChange(e.target.value)}
-                        className="glass-input w-full px-4 py-3 text-lg font-semibold appearance-none bg-[#0f172a]/80 cursor-pointer border border-white/10 hover:border-indigo-400/50 transition-colors"
+                        className="glass-input w-full px-4 py-3 text-lg font-semibold appearance-none cursor-pointer border border-white/10 hover:border-indigo-400/50 transition-colors"
                     >
                         <option value="kathmandu">Kathmandu Metropolitan City</option>
                         <option value="lalitpur">Lalitpur Metropolitan City</option>
@@ -58,7 +58,7 @@ function InputPanel({ location, onLocationChange, buildingType, onBuildingTypeCh
                             value={buildingType}
                             onChange={(e) => onBuildingTypeChange(e.target.value)}
                             disabled={location === 'custom'}
-                            className={`glass-input w-full px-4 py-2.5 text-sm font-semibold appearance-none bg-[#0f172a]/80 border border-white/10 hover:border-amber-400/50 transition-colors ${location === 'custom' ? 'cursor-not-allowed text-white/30' : 'cursor-pointer'}`}
+                            className={`glass-input w-full px-4 py-2.5 text-sm font-semibold appearance-none border border-white/10 hover:border-amber-400/50 transition-colors ${location === 'custom' ? 'cursor-not-allowed text-white/30' : 'cursor-pointer'}`}
                         >
                             <option value="residential">Residential</option>
                             <option value="commercial">Commercial</option>

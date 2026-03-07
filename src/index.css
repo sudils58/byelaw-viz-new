@@ -382,3 +382,14 @@ body.light-theme .bg-white\/10 {
 body.light-theme .bg-white\/15 {
   background-color: rgba(0, 0, 0, 0.08) !important;
 }
+
+/* === SELECT DROPDOWN FIX === */
+select.glass-input option {
+  background-color: #0f172a;
+  color: #f1f5f9;
+}
+
+body.light-theme select.glass-input option {
+  background-color: #ffffff;
+  color: #0f172a !important;
+}
