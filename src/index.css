@@ -167,8 +167,8 @@ html {
 /* === GLASS BANNER === */
 .glass-banner {
   background: linear-gradient(135deg, rgba(99, 102, 241, 0.35), rgba(59, 130, 246, 0.3));
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow:
     0 8px 32px rgba(99, 102, 241, 0.2),
@@ -288,9 +288,9 @@ body.light-theme .glass-bg::after {
 
 body.light-theme .glass-card,
 body.light-theme .glass-banner {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(28px) saturate(200%);
-  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(16px) saturate(200%);
+  -webkit-backdrop-filter: blur(16px) saturate(200%);
   border: 1px solid rgba(255, 255, 255, 0.8);
   box-shadow:
     0 10px 40px rgba(0, 0, 0, 0.05),

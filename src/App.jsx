@@ -211,7 +211,7 @@ export default function App() {
                                     value={maxFAR}
                                     onChange={(e) => setMaxFAR(e.target.value)}
                                     disabled={location !== 'custom'}
-                                    className={`w-20 text-3xl font-extrabold text-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-indigo-400/60 focus:ring-2 focus:ring-indigo-400/20 ${location !== 'custom' ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                    className={`w-20 text-3xl font-extrabold text-center bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-indigo-400/60 focus:ring-2 focus:ring-indigo-400/20 ${location !== 'custom' ? 'opacity-[0.85] cursor-not-allowed' : ''}`}
                                 />
                                 <div className="text-xs text-indigo-200/70 uppercase tracking-wider font-medium mt-1">Max FAR</div>
                             </div>
@@ -227,7 +227,7 @@ export default function App() {
                                         value={maxCoverage}
                                         onChange={(e) => setMaxCoverage(e.target.value)}
                                         disabled={location !== 'custom'}
-                                        className={`w-20 text-3xl font-extrabold text-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-indigo-400/60 focus:ring-2 focus:ring-indigo-400/20 ${location !== 'custom' ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        className={`w-20 text-3xl font-extrabold text-center bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-indigo-400/60 focus:ring-2 focus:ring-indigo-400/20 ${location !== 'custom' ? 'opacity-[0.85] cursor-not-allowed' : ''}`}
                                     />
                                     <span className="text-xl font-bold text-white/70">%</span>
                                 </div>
@@ -244,7 +244,7 @@ export default function App() {
                                         value={maxHeight}
                                         onChange={(e) => setMaxHeight(e.target.value)}
                                         disabled={location !== 'custom'}
-                                        className={`w-20 text-3xl font-extrabold text-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-indigo-400/60 focus:ring-2 focus:ring-indigo-400/20 ${location !== 'custom' ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        className={`w-20 text-3xl font-extrabold text-center bg-white/10 border border-white/20 rounded-lg text-white placeholder:text-white/30 focus:outline-none focus:border-indigo-400/60 focus:ring-2 focus:ring-indigo-400/20 ${location !== 'custom' ? 'opacity-[0.85] cursor-not-allowed' : ''}`}
                                     />
                                     <span className="text-xl font-bold text-white/70">ft</span>
                                 </div>
