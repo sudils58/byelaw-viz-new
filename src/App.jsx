@@ -52,7 +52,7 @@ export default function App() {
     const [maxCoverage, setMaxCoverage] = useState('40')
     const [maxHeight, setMaxHeight] = useState('45')
     const [roads, setRoads] = useState(DEFAULT_ROADS)
-    const [theme, setTheme] = useState('dark')
+    const [theme, setTheme] = useState('light')
     const [sitePolygon, setSitePolygon] = useState(null)
     const [dxfError, setDxfError] = useState(null)
     const [dxfUnit, setDxfUnit] = useState('inches') // 'inches' or 'feet'
